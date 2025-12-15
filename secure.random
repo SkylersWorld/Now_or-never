@@ -41,4 +41,20 @@ public class SecurityCodeGenerator {
         }
         return token.toString();
     }
+// Inside your SecurityService or AuthService
+
+public void initiatePasswordReset(String email) {
+    // 1. Check if user exists (User user = userRepository.findByEmail(email))
+
+    // 2. Generate the code
+    String verificationCode = SecurityCodeGenerator.generateVerificationCode(); 
+
+    // 3. Store the code and its expiry time in the database 
+    //    (e.g., user.setResetCode(verificationCode); user.setResetCodeExpiry(LocalDateTime.now().plusMinutes(10));)
+    
+    // 4. Send the email 
+    //    (notificationService.sendVerificationEmail(email, verificationCode))
+
+    // ... continue with standard logging and response ...
+}
 }
