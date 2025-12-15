@@ -74,3 +74,61 @@ function addMarkerToMap(alert) {
         .bindPopup(`<b style="color:red">${alert.type}</b><br>${alert.description}`)
         .openPopup();
 }
+// 3. Alert Logic
+function submitAlert() {
+    // ... existing login check ...
+    if (!isLoggedIn) {
+        alert("ACCESS DENIED: You must log in to submit a report.");
+        return;
+    }
+
+    const type = document.getElementById('type').value;
+    const desc = document.getElementById('desc').value;
+    const isAnon = document.getElementById('anon').checked;
+    const user = isAnon ? "Anonymous" : document.getElementById('username-display').innerText;
+
+    // NEW FIELD CAPTURE
+    const phone = document.getElementById('reporter-phone').value;
+    const postalCode = document.getElementById('incident-postal-code').value;
+
+    if(!type || !desc || !phone || !postalCode) { // Now phone and postal code are required
+        alert("Please fill in all incident fields, phone number, and postal code.");
+        return;
+    }
+
+    // Generate Random Location near center for demo
+    // ... existing location logic ...
+
+    // --- Data to be sent to Backend (via WebSocket) ---
+    const alertData = {
+        type: type,
+        description: desc,
+        reporterName: user,
+        phoneNumber: phone, // Pass phone number
+        postalCode: postalCode, // Pass postal code
+        lat: lat,
+        lng: lng,
+        time: new Date().toLocaleTimeString()
+    };
+    // --- END Data to be sent to Backend ---
+
+    addAlertToFeed(alertData); // Use the new object
+    addMarkerToMap(alertData);
+    
+    // In real app: send via WebSocket here (Backend expects ReportRequest DTO)
+    // stompClient.send("/app/report", {}, JSON.stringify(alertData));
+}
+
+// Update the Feed function to show new data
+function addAlertToFeed(alert) {
+    const feed = document.getElementById('feed');
+    const item = document.createElement('div');
+    item.className = 'alert-item';
+    item.innerHTML = `
+        <span class="timestamp">${alert.time}</span> | 
+        <b style="color:red">${alert.type}</b> | Reported by: ${alert.reporterName}<br>
+        <span style="font-style: italic;">Location ID: ${alert.postalCode}</span><br>
+        ${alert.description}
+    `;
+    feed.prepend(item);
+}
